@@ -8,6 +8,7 @@ from typing import Tuple, List
 import requests
 import logging
 import datetime
+import barcode
 
 current_time = datetime.datetime.strftime(datetime.datetime.now(), '%Y-%m-%d %H_%M_%S')
 logging.basicConfig(
@@ -61,8 +62,8 @@ def make_list_dict_rec(tuple_rec: Tuple, list_rec: List, receipt_db: Receiptinsq
         'shop_id': tuple_rec[3],
         'items': items,
         'sum': tuple_rec[4],
-        'clientID': tuple_rec[5],
-        'inn_pman': tuple_rec[6],
+        'clientID': str(barcode.get('ean13', tuple_rec[5])),
+        'inn_pman': str(barcode.get('ean13', tuple_rec[6])),
         'phone': tuple_rec[7],
         'bonus_add': tuple_rec[8],
         'bonus_dec': tuple_rec[9],

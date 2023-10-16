@@ -62,9 +62,10 @@ def make_list_dict_rec(tuple_rec: Tuple, list_rec: List, receipt_db: Receiptinsq
         'items': items,
         'sum': tuple_rec[4],
         'clientID': tuple_rec[5],
-        'phone': tuple_rec[6],
-        'bonus_add': tuple_rec[7],
-        'bonus_dec': tuple_rec[8],
+        'inn_pman': tuple_rec[6],
+        'phone': tuple_rec[7],
+        'bonus_add': tuple_rec[8],
+        'bonus_dec': tuple_rec[9],
     }
     list_rec.append(rec)
     return list_rec

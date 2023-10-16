@@ -36,9 +36,12 @@ def make_list_dict_items(tuple_items: Tuple) -> List:
     for elem in tuple_items:
         item = {
             'nn': elem[1],
-            'name': elem[2],
-            'quantity': elem[3],
-            'price': elem[4],
+            'barcode': elem[2],
+            'name': elem[3],
+            'quantity': elem[4],
+            'price': elem[5],
+            'seller': elem[6],
+            'comment': elem[7],
         }
         list_items.append(item)
     return list_items
@@ -55,6 +58,7 @@ def make_list_dict_rec(tuple_rec: Tuple, list_rec: List, receipt_db: Receiptinsq
         list_rec = []
     rec_items = receipt_db.get_items(tuple_rec[0])
     items = make_list_dict_items(rec_items)
+    inn = str(tuple_rec[6])
     rec = {
         'id': tuple_rec[0],
         'number_receipt': tuple_rec[1],
@@ -62,11 +66,12 @@ def make_list_dict_rec(tuple_rec: Tuple, list_rec: List, receipt_db: Receiptinsq
         'shop_id': tuple_rec[3],
         'items': items,
         'sum': tuple_rec[4],
-        'clientID': str(barcode.get('ean13', tuple_rec[5])),
-        'inn_pman': str(barcode.get('ean13', tuple_rec[6])),
-        'phone': tuple_rec[7],
-        'bonus_add': tuple_rec[8],
-        'bonus_dec': tuple_rec[9],
+        'SumBeforeSale': tuple_rec[5],
+        'clientID': str(barcode.get('ean13', inn)),
+        'inn_pman': str(barcode.get('ean13', inn)),
+        'phone': tuple_rec[8],
+        'bonus_add': tuple_rec[9],
+        'bonus_dec': tuple_rec[10],
     }
     list_rec.append(rec)
     return list_rec

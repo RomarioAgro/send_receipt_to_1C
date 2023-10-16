@@ -6,6 +6,20 @@ import os
 from dotenv import load_dotenv
 from typing import Tuple, List
 import requests
+import logging
+import datetime
+
+current_time = datetime.datetime.strftime(datetime.datetime.now(), '%Y-%m-%d %H_%M_%S')
+logging.basicConfig(
+    filename='d:\\files\\' + os.path.basename(__file__) + '_.log',
+    filemode='a',
+    level=logging.DEBUG,
+    format="%(asctime)s - %(filename)s - %(funcName)s: %(lineno)d - %(message)s",
+    datefmt='%H:%M:%S')
+
+logger_check: logging.Logger = logging.getLogger(__name__)
+logger_check.setLevel(logging.DEBUG)
+logger_check.debug('start')
 
 env_path = os.path.join(os.path.dirname(__file__), '.env')
 load_dotenv(dotenv_path=env_path)
@@ -65,6 +79,7 @@ def get_receipts(rec_db: Receiptinsql) -> List:
     list_receipts = []
     for elem in rec_list:
         list_receipts = make_list_dict_rec(elem, list_receipts, rec_db)
+    logging.debug('получили список чеков {}'.format(list_receipts))
     return list_receipts
 
 
@@ -81,8 +96,20 @@ def send_receipt_to_1C(list_receipt: List) -> List:
         'Authorization': 'Basic ' + os.getenv('token')
     }
     for elem in list_receipt:
-        r = requests.post(url=url, headers=headers, json=elem, timeout=20)
-        if r.status_code == 200:
+        try:
+            r = requests.post(url=url, headers=headers, json=elem, timeout=20)
+            r.raise_for_status()
+            status_code = r.status_code
+        except requests.exceptions.MissingSchema as exc:
+            logging.debug(exc)
+            status_code = 404
+        except requests.exceptions.Timeout as exc:
+            logging.debug(exc)
+            status_code = 700
+        except requests.exceptions.HTTPError as exc:
+            status_code = r.status_code
+            logging.debug(exc)
+        if status_code == 200:
             list_good_sended.append(elem['id'])
     return list_good_sended
 
@@ -103,7 +130,6 @@ def main():
     list_receipt_to_1C = get_receipts(receipt_db)
     list_sended = send_receipt_to_1C(list_receipt_to_1C)
     delete_sended_receipts_from_local_db(receipt_db, list_sended)
-
 
 if __name__ == '__main__':
     main()

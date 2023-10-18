@@ -78,6 +78,8 @@ def make_list_dict_rec(tuple_rec: Tuple, list_rec: List, receipt_db: Receiptinsq
         'phone': tuple_rec[8],
         'bonus_add': tuple_rec[9],
         'bonus_dec': tuple_rec[10],
+        'bonus_begin': tuple_rec[11],
+        'bonus_end': tuple_rec[12]
     }
     logger_sender.debug('конец формирования чека')
     list_rec.append(rec)

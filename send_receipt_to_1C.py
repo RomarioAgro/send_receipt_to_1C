@@ -18,9 +18,9 @@ logging.basicConfig(
     format="%(asctime)s - %(filename)s - %(funcName)s: %(lineno)d - %(message)s",
     datefmt='%H:%M:%S')
 
-logger_check: logging.Logger = logging.getLogger(__name__)
-logger_check.setLevel(logging.DEBUG)
-logger_check.debug('start')
+logger_sender: logging.Logger = logging.getLogger(__name__)
+logger_sender.setLevel(logging.DEBUG)
+logger_sender.debug('start')
 
 env_path = os.path.join(os.path.dirname(__file__), '.env')
 load_dotenv(dotenv_path=env_path)
@@ -33,6 +33,7 @@ except Exception as exc:
 
 def make_list_dict_items(tuple_items: Tuple) -> List:
     list_items = []
+    logger_sender.debug('формируем состав чека')
     for elem in tuple_items:
         item = {
             'nn': elem[1],
@@ -44,6 +45,7 @@ def make_list_dict_items(tuple_items: Tuple) -> List:
             'comment': elem[7],
         }
         list_items.append(item)
+    logger_sender.debug('конец формируем состав чека')
     return list_items
 
 
@@ -54,11 +56,15 @@ def make_list_dict_rec(tuple_rec: Tuple, list_rec: List, receipt_db: Receiptinsq
     :param list_rec: выходной список всех чеков
     :return:
     """
+    logger_sender.debug('начало формирования чека')
     if list_rec is None:
         list_rec = []
     rec_items = receipt_db.get_items(tuple_rec[0])
     items = make_list_dict_items(rec_items)
-    inn = str(tuple_rec[6])
+    if str(tuple_rec[6]) != 'XЧЛ':
+        inn = str(barcode.get('ean13', str(tuple_rec[6])))
+    else:
+        inn = 'XЧЛ'
     rec = {
         'id': tuple_rec[0],
         'number_receipt': tuple_rec[1],
@@ -67,12 +73,13 @@ def make_list_dict_rec(tuple_rec: Tuple, list_rec: List, receipt_db: Receiptinsq
         'items': items,
         'sum': tuple_rec[4],
         'SumBeforeSale': tuple_rec[5],
-        'clientID': str(barcode.get('ean13', inn)),
-        'inn_pman': str(barcode.get('ean13', inn)),
+        'clientID': inn,
+        'inn_pman': inn,
         'phone': tuple_rec[8],
         'bonus_add': tuple_rec[9],
         'bonus_dec': tuple_rec[10],
     }
+    logger_sender.debug('конец формирования чека')
     list_rec.append(rec)
     return list_rec
 
@@ -82,6 +89,7 @@ def get_receipts(rec_db: Receiptinsql) -> List:
     получаем список чеков
     :return:
     """
+
     rec_list = rec_db.get_receipt()
     list_receipts = []
     for elem in rec_list:

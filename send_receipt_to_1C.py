@@ -28,6 +28,7 @@ load_dotenv(dotenv_path=env_path)
 try:
     from shtrih.receipt_db import Receiptinsql
 except Exception as exc:
+    logger_sender.debug('ошибка импорта модуля {0}'.format(exc))
     print(exc)
 
 
@@ -97,7 +98,7 @@ def get_receipts(rec_db: Receiptinsql) -> List:
     list_receipts = []
     for elem in rec_list:
         list_receipts = make_list_dict_rec(elem, list_receipts, rec_db)
-    logging.debug('получили список чеков {}'.format(list_receipts))
+    logger_sender.debug('получили список чеков {}'.format(list_receipts))
     return list_receipts
 
 
@@ -116,17 +117,18 @@ def send_receipt_to_1C(list_receipt: List) -> List:
     for elem in list_receipt:
         try:
             r = requests.post(url=url, headers=headers, json=elem, timeout=20)
+            logger_sender.debug('отправлен чек {0}, {1}'.format(elem, r.text))
             r.raise_for_status()
             status_code = r.status_code
         except requests.exceptions.MissingSchema as exc:
-            logging.debug(exc)
+            logger_sender.debug(exc)
             status_code = 404
         except requests.exceptions.Timeout as exc:
-            logging.debug(exc)
+            logger_sender.debug(exc)
             status_code = 700
         except requests.exceptions.HTTPError as exc:
             status_code = r.status_code
-            logging.debug(exc)
+            logger_sender.debug(exc)
         if status_code == 200:
             list_good_sended.append(elem['id'])
     return list_good_sended

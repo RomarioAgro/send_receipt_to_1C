@@ -33,6 +33,11 @@ except Exception as exc:
 
 
 def make_list_dict_items(tuple_items: Tuple) -> List:
+    """
+    функция создания списка словарей товаров
+    :param tuple_items:
+    :return:
+    """
     list_items = []
     logger_sender.debug('формируем состав чека')
     for elem in tuple_items:
@@ -46,9 +51,27 @@ def make_list_dict_items(tuple_items: Tuple) -> List:
             'comment': elem[7],
         }
         list_items.append(item)
-    logger_sender.debug('конец формируем состав чека')
+    logger_sender.debug('конец формируем состав чека {0}'.format(list_items))
     return list_items
 
+def make_list_dict_bonusi(tuple_bonusi: Tuple) -> List:
+    """
+    функция создания списка словарей с бонусами
+    :param tuple_bonusi:
+    :return:
+    """
+    list_bonusi = []
+    logger_sender.debug('формируем bonusi')
+    for elem in tuple_bonusi:
+        item = {
+            'bonus_id': elem[1],
+            'bonus_begin': elem[2],
+            'bonus_end': elem[3],
+            'bonus_add': elem[4]
+        }
+        list_bonusi.append(item)
+    logger_sender.debug('конец формируем состав чека {0}'.format(list_bonusi))
+    return list_bonusi
 
 def make_list_dict_rec(tuple_rec: Tuple, list_rec: List, receipt_db: Receiptinsql) -> List:
     """
@@ -61,7 +84,9 @@ def make_list_dict_rec(tuple_rec: Tuple, list_rec: List, receipt_db: Receiptinsq
     if list_rec is None:
         list_rec = []
     rec_items = receipt_db.get_items(tuple_rec[0])
+    rec_bonusi = receipt_db.get_bonusi(tuple_rec[0])
     items = make_list_dict_items(rec_items)
+    bonusi = make_list_dict_bonusi(rec_bonusi)
     if str(tuple_rec[6]) != 'XЧЛ':
         inn = str(barcode.get('ean13', str(tuple_rec[6])))
     else:
@@ -82,6 +107,7 @@ def make_list_dict_rec(tuple_rec: Tuple, list_rec: List, receipt_db: Receiptinsq
         'bonus_begin': tuple_rec[11],
         'bonus_end': tuple_rec[12],
         'operation_type': tuple_rec[13],
+        'bonus_items': bonusi
     }
     logger_sender.debug('конец формирования чека')
     list_rec.append(rec)
@@ -150,6 +176,8 @@ def main():
     list_receipt_to_1C = get_receipts(receipt_db)
     list_sended = send_receipt_to_1C(list_receipt_to_1C)
     delete_sended_receipts_from_local_db(receipt_db, list_sended)
+    if receipt_db.count_receipt()[0] == 0:
+        receipt_db.drop_table()
 
 if __name__ == '__main__':
     main()

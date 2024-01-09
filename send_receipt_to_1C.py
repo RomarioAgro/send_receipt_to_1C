@@ -45,11 +45,12 @@ def make_list_dict_items(tuple_items: Tuple) -> List:
         item = {
             'nn': elem[1],
             'barcode': elem[2],
-            'name': elem[3],
-            'quantity': elem[4],
-            'price': elem[5],
-            'seller': elem[6],
-            'comment': elem[7],
+            'artname': elem[3],
+            'name': elem[4],
+            'quantity': elem[5],
+            'price': elem[6],
+            'seller': elem[7],
+            'comment': elem[8],
         }
         list_items.append(item)
     logger_sender.debug('конец формируем состав чека {0}'.format(list_items))
@@ -136,8 +137,7 @@ def send_receipt_to_1C(list_receipt: List) -> List:
     :return:
     """
     list_good_sended = []
-    # url = os.getenv('server_1C_add_receipt')
-    url = link_to_server_1c() + 'check/add/'
+    url = os.getenv('server_1c_cloud') + 'check/add/'
     headers = {
         'Content-Type': 'application/json',
         'Authorization': 'Basic ' + os.getenv('token')
@@ -174,8 +174,6 @@ def delete_sended_receipts_from_local_db(rec_db: Receiptinsql, list_sended: List
 
 
 def main():
-    # a = link_to_server_1c()
-    # print(a)
     receipt_db = Receiptinsql(db_path=os.getenv('receipt_sql_path'))
     list_receipt_to_1C = get_receipts(receipt_db)
     list_sended = send_receipt_to_1C(list_receipt_to_1C)

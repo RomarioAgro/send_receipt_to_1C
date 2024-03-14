@@ -9,7 +9,6 @@ import requests
 import logging
 import datetime
 import barcode
-from sbis_bonusi.sbis_bonus_OOP import link_to_server_1c
 
 current_time = datetime.datetime.strftime(datetime.datetime.now(), '%Y-%m-%d %H_%M_%S')
 logging.basicConfig(

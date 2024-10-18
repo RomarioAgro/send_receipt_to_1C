@@ -49,8 +49,9 @@ def make_list_dict_items(tuple_items: Tuple) -> List:
             'modification': elem[5],
             'quantity': elem[6],
             'price': elem[7],
-            'seller': elem[8],
-            'comment': elem[9],
+            'fullprice': elem[8],
+            'seller': elem[9],
+            'comment': elem[10],
         }
         list_items.append(item)
     logger_sender.debug('конец формируем состав чека {0}'.format(list_items))
